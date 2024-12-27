@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from time import sleep
 import random
+from rembg import remove
 
 # App text
 st.title('pAInt Me a Picture Photobooth')
@@ -41,9 +42,17 @@ def afterPhotos():
     emotionTxt.write("**All done!**")
     collageify()
 
+# REPLACE IMAGE'S BACKGROUND
+def swapbg(file, name):
+    output = remove(file)
+    output.save("img/" + name + ".png")
+
 # COMBINE PHOTOS INTO A COLLAGE
 def collageify():
     top = Image.open("assets/top.png")
+    # Remove background
+    for i in range(1,4):
+        swapbg(Image.open("img/" + str(i) + ".png"),str(i))
     img1 = Image.open("img/1.png")
     img2 = Image.open("img/2.png")
     img3  =Image.open("img/3.png")
