@@ -97,7 +97,7 @@ def getBg(i):
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="AIzaSyAREanw-jTADBKqb_Byu_0HCJldjYSI3f8")
+    client = genai.Client(api_key="haha you wish")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=["Respond with just 3 words describing the moods given by the facial expressions of the person or people pictured here.", image])
