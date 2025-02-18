@@ -55,18 +55,41 @@ def swapbg(file, name):
 # COMBINE PHOTOS INTO A COLLAGE
 def collageify():
     top = Image.open("assets/top.png")
-    # Remove background
+    # Swap background
+    getBg(1)
+    getBg(2)
+    getBg(3)
+
     for i in range(1,4):
         swapbg(Image.open("img/" + str(i) + ".png"),str(i))
+
     img1 = Image.open("img/1.png")
     img2 = Image.open("img/2.png")
     img3  =Image.open("img/3.png")
-    # Create and add images to collage
+
+    bg1 = Image.open("img/bg1.png")
+    bg2 = Image.open("img/bg2.png")
+    bg3  =Image.open("img/bg3.png")
+
+    bg1 = bg1.resize(img1.size)
+    bg2 = bg2.resize(img2.size)
+    bg3 = bg3.resize(img3.size)
+
+    bg1.paste(img1, (0,0), img1)
+    bg2.paste(img2, (0,0), img2)
+    bg3.paste(img3, (0,0), img3)
+
     collage = Image.new("RGBA", (img1.width, 3 * img1.height + top.height),(255, 200, 150))
+    collage.paste(bg2, (0, img1.height + top.height))
+    collage.paste(bg3, (0, 2 * img1.height + top.height))
+
+
+    # Create and add images to collage
     collage.paste(top, (0,0))
-    collage.paste(img1, (0, top.height))
-    collage.paste(img2, (0, img1.height + top.height))
-    collage.paste(img3, (0, 2 * img1.height + top.height))
+    collage.paste(bg1, (0, top.height))
+    collage.paste(bg2, (0, img1.height + top.height))
+    collage.paste(bg3, (0, 2 * img1.height + top.height))
+
     # Save and display collage
     collage.save("img/collage.png")
     st.image(collage)
@@ -90,14 +113,14 @@ def takePics():
             img_pil = Image.open(cam)
             img_pil.save(f"img/{numPics}.png")
             st.write("")
-            getBg(numPics)
             takePics()
 def getBg(i):
+    print("Getting background for "+str(i))
     num = str(i)
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="AIzaSyAREanw-jTADBKqb_Byu_0HCJldjYSI3f8")
+    client = genai.Client(api_key="in your DREAMS")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=["Respond with just 3 words describing the moods given by the facial expressions of the person or people pictured here.", image])
@@ -124,12 +147,31 @@ def getBg(i):
         safety_filter_level="block_some",
         person_generation="dont_allow",
     )
-    images[0].save(location=output_file, include_generation_parameters=False)
-
+    try:
+        images[0].save(location=output_file, include_generation_parameters=False)
+        print(f"Created output image")
+    except:
+        images = model.generate_images(
+            prompt=prompt,
+            # Optional parameters
+            number_of_images=1,
+            language="en",
+            # You can't use a seed value and watermark at the same time.
+            # add_watermark=False,
+            # seed=100,
+            aspect_ratio="4:3",
+            safety_filter_level="block_some",
+            person_generation="dont_allow",
+        )
+        try:
+            images[0].save(location=output_file, include_generation_parameters=False)
+            print(f"Created output image")
+        except:
+            print(f"failed :(")
     # Optional. View the generated image in a notebook.
     # images[0].show()
 
-    print(f"Created output image")
+    
 
 numPics = 0
 takePics()
