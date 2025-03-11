@@ -1,17 +1,16 @@
 # Imports
 import streamlit as st
 from PIL import Image
-import os
-import pandas as pd
-import numpy as np
 from time import sleep
 import random
-from rembg import remove
 from google import genai
 from google.genai import types
 import vertexai 
 from vertexai.preview.vision_models import ImageGenerationModel
 import PIL.Image
+
+gensLeft = 12
+missing = []
 
 # App text
 st.title('pAInt Me a Picture Photobooth')
@@ -47,21 +46,20 @@ def afterPhotos():
     emotionTxt.write("**All done!**")
     collageify()
 
-# REPLACE IMAGE'S BACKGROUND
-def swapbg(file, name):
-    output = remove(file)
-    output.save("img/" + name + ".png")
-
 # COMBINE PHOTOS INTO A COLLAGE
 def collageify():
+    global gensLeft
+    global missing
     top = Image.open("assets/top.png")
     # Swap background
-    getBg(1)
-    getBg(2)
-    getBg(3)
+    getBg(1, 4)
+    getBg(2, 4)
+    getBg(3, 4)
+    while (gensLeft > 0 and len(missing) > 0):
+        toGet = missing[0]
+        missing.pop(toGet)
+        getBg(toGet, 1)
 
-    for i in range(1,4):
-        swapbg(Image.open("img/" + str(i) + ".png"),str(i))
 
     img1 = Image.open("img/1.png")
     img2 = Image.open("img/2.png")
@@ -74,10 +72,6 @@ def collageify():
     bg1 = bg1.resize(img1.size)
     bg2 = bg2.resize(img2.size)
     bg3 = bg3.resize(img3.size)
-
-    bg1.paste(img1, (0,0), img1)
-    bg2.paste(img2, (0,0), img2)
-    bg3.paste(img3, (0,0), img3)
 
     collage = Image.new("RGBA", (img1.width, 3 * img1.height + top.height),(255, 200, 150))
     collage.paste(bg2, (0, img1.height + top.height))
@@ -93,7 +87,6 @@ def collageify():
     # Save and display collage
     collage.save("img/collage.png")
     st.image(collage)
-    print("collage made! Go check it out!")
 
 # TAKE A PHOTO
 pics = {}
@@ -115,43 +108,28 @@ def takePics():
             img_pil.save(f"img/{numPics}.png")
             st.write("")
             takePics()
-def getBg(i):
+def getBg(i, lim):
+    global gensLeft
     print("Getting background for "+str(i))
     num = str(i)
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="in your DREAMS")
+    client = genai.Client(api_key="mmmm no :)")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=["Respond with just 3 words describing the moods given by the facial expressions of the person or people pictured here.", image])
-
+        contents=["Create a detailed image generation description that explains what the person or people in the image look like, their clothes, poses, and facial expressions. Pretend they're in front of a landscape from an imaginary far off land that matches their expressions. What does it look like? Describe them and their backgrounds very well.", image])
     print(response.text)
 
     PROJECT_ID = "chrome-ranger-450123-r5"
     output_file = "img/bg"+num+".png"
-    prompt = "Generate a background image with the following feeling: "+ response.text # The text prompt describing what you want to see.
+    prompt = "Cartooney " + response.text # The text prompt describing what you want to see.
 
     vertexai.init(project=PROJECT_ID, location="us-central1")
 
     model = ImageGenerationModel.from_pretrained("imagen-3.0-generate-002")
-
-    images = model.generate_images(
-        prompt=prompt,
-        # Optional parameters
-        number_of_images=1,
-        language="en",
-        # You can't use a seed value and watermark at the same time.
-        # add_watermark=False,
-        # seed=100,
-        aspect_ratio="4:3",
-        safety_filter_level="block_some",
-        person_generation="dont_allow",
-    )
-    try:
-        images[0].save(location=output_file, include_generation_parameters=False)
-        print(f"Created output image")
-    except:
+    j = 0
+    while(j < lim):
         images = model.generate_images(
             prompt=prompt,
             # Optional parameters
@@ -162,13 +140,23 @@ def getBg(i):
             # seed=100,
             aspect_ratio="4:3",
             safety_filter_level="block_some",
-            person_generation="dont_allow",
-        )
+            person_generation="allow",
+        )  
+        gensLeft = gensLeft - 1 
         try:
             images[0].save(location=output_file, include_generation_parameters=False)
-            print(f"Created output image")
+            print(f"Created output image!")
+            j = lim + 1
         except:
-            print(f"failed :(")
+            print(f"failed on attempt {i}. Updated prompt to ")
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=["Make this image generator prompt more concise (3/4ths length or less, the background should be an imaginary one to match the person's emotions): " + prompt])
+            print(response.text)
+            prompt = "Cartooney " + response.text # The text prompt describing what you want to see.
+            j = j + 1
+            if (j == lim):
+                missing.append(i)
     # Optional. View the generated image in a notebook.
     # images[0].show()
 

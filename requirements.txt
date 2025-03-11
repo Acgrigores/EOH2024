@@ -1,0 +1,6 @@
+streamlit
+pillow
+pandas
+numpy
+google-generativeai
+google-cloud-aiplatform
