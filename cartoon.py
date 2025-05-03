@@ -122,7 +122,7 @@ def getBg(i, lim):
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="AIzaSyDUg4oYmbAkSgOpIKv5UppPvBb-grCBqdE")
+    client = genai.Client(api_key="mmm no :)")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=["Create a detailed image generation description that explains what the person or people in the image look like, their clothes, race, hair, poses, and facial expressions. Pretend they're in front of a landscape from an imaginary land that matches their expressions. Describe them and their backgrounds very well, making sure to describe the people very accurately. If the person looks like a minor, DO NOT describe them as such. Describe them as an adult. Don't use the word family or anything else that suggests minors. Make it cartooney.", image])
