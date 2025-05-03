@@ -1,13 +1,20 @@
 # Imports
+print("starting imports")
 import streamlit as st
 from PIL import Image
 from time import sleep
 import random
+print("importing genai")
 from google import genai
+print("Imported genai")
 from google.genai import types
+print("Imported types")
 import vertexai 
+print("Imported vertexai")
 from vertexai.preview.vision_models import ImageGenerationModel
+print("Imported ImageGenerationModel")
 import PIL.Image
+print("Imported PIL")
 
 gensLeft = 12
 missing = []
@@ -22,13 +29,12 @@ emotionTxt = st.markdown("")
 common_emotions = ["happy", "sad", "angry", "surprised", "afraid"]
 extended_emotions = [
     "happy", "sad", "angry", "surprised", "afraid",
-    "excited", "bored", "confused", "disappointed", "hopeful",
-    "proud", "embarrassed", "annoyed", "calm",
-    "guilty", "frustrated", "amused", "shy", "relaxed",
-    "worried", "anxious", "cheerful", "thoughtful",
-    "tired", "relieved", "playful", "silly", "grumpy",
-    "curious", "scared", "sleepy", "nervous", "shocked",
-    "mad"
+    "confused",
+    "embarrassed",
+    "guilty", "frustrated", "shy", "relaxed",
+    "worried", "thoughtful",
+    "tired", "silly", "grumpy",
+    "curious","sleepy", "nervous"
 ]
 # Function to update emotions
 def emoUpdate():
@@ -56,8 +62,9 @@ def collageify():
     getBg(2, 4)
     getBg(3, 4)
     while (gensLeft > 0 and len(missing) > 0):
-        toGet = missing[0]
-        missing.pop(toGet)
+        toGet = missing[len(missing) - 1]
+        if(not len(missing) == 0):
+            missing.pop()
         getBg(toGet, 1)
 
 
@@ -115,10 +122,10 @@ def getBg(i, lim):
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="mmmm no :)")
+    client = genai.Client(api_key="AIzaSyDUg4oYmbAkSgOpIKv5UppPvBb-grCBqdE")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=["Create a detailed image generation description that explains what the person or people in the image look like, their clothes, poses, and facial expressions. Pretend they're in front of a landscape from an imaginary far off land that matches their expressions. What does it look like? Describe them and their backgrounds very well.", image])
+        contents=["Create a detailed image generation description that explains what the person or people in the image look like, their clothes, race, hair, poses, and facial expressions. Pretend they're in front of a landscape from an imaginary land that matches their expressions. Describe them and their backgrounds very well, making sure to describe the people very accurately. If the person looks like a minor, DO NOT describe them as such. Describe them as an adult. Don't use the word family or anything else that suggests minors. Make it cartooney.", image])
     print(response.text)
 
     PROJECT_ID = "chrome-ranger-450123-r5"

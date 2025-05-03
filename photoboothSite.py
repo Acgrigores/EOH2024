@@ -23,13 +23,12 @@ emotionTxt = st.markdown("")
 common_emotions = ["happy", "sad", "angry", "surprised", "afraid"]
 extended_emotions = [
     "happy", "sad", "angry", "surprised", "afraid",
-    "excited", "bored", "confused", "disappointed", "hopeful",
-    "proud", "embarrassed", "annoyed", "calm",
-    "guilty", "frustrated", "amused", "shy", "relaxed",
-    "worried", "anxious", "cheerful", "thoughtful",
-    "tired", "relieved", "playful", "silly", "grumpy",
-    "curious", "scared", "sleepy", "nervous", "shocked",
-    "mad"
+    "excited", "bored", "confused", "disappointed",
+    "embarrassed", "annoyed", "amazed",
+    "guilty", "shy", "relaxed",
+    "worried", "cheerful", "thoughtful",
+    "sleepy", "playful", "silly", "grumpy",
+    "curious", "scared"
 ]
 # Function to update emotions
 def emoUpdate():
@@ -121,7 +120,7 @@ def getBg(i):
 
     image = PIL.Image.open("img/"+num+".png")
 
-    client = genai.Client(api_key="in your DREAMS")
+    client = genai.Client(api_key="AIzaSyDUg4oYmbAkSgOpIKv5UppPvBb-grCBqdE")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=["Respond with just 3 words describing the moods given by the facial expressions of the person or people pictured here.", image])
@@ -130,7 +129,7 @@ def getBg(i):
 
     PROJECT_ID = "chrome-ranger-450123-r5"
     output_file = "img/bg"+num+".png"
-    prompt = "Generate a background image with the following feeling: "+ response.text # The text prompt describing what you want to see.
+    prompt = "Generate a background image:"+ response.text # The text prompt describing what you want to see.
 
     vertexai.init(project=PROJECT_ID, location="us-central1")
 
@@ -146,7 +145,7 @@ def getBg(i):
         # seed=100,
         aspect_ratio="4:3",
         safety_filter_level="block_some",
-        person_generation="dont_allow",
+        person_generation="ALLOW_ADULT",
     )
     try:
         images[0].save(location=output_file, include_generation_parameters=False)
